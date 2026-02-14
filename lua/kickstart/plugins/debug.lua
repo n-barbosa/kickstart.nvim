@@ -26,25 +26,64 @@ return {
   },
   keys = {
     -- Basic debugging keymaps, feel free to change to your liking!
+    -- {
+    --   '<F5>',
+    --   function() require('dap').continue() end,
+    --   desc = 'Debug: Start/Continue',
+    -- },
     {
       '<F5>',
-      function() require('dap').continue() end,
-      desc = 'Debug: Start/Continue',
+      function()
+        local dap = require 'dap'
+        -- Case 1: Session is running -> Stop it, wait, then restart
+        if dap.session() then
+          dap.terminate()
+          vim.defer_fn(function() dap.run_last() end, 100)
+
+        -- Case 2: No session running, but we ran one before -> Run it again
+        elseif dap.last_run then
+          dap.run_last()
+
+        -- Case 3: Brand new session -> Start normally
+        else
+          dap.continue()
+        end
+      end,
+      desc = 'Debug: Start or Restart Session',
+    },
+    {
+      '<leader>dc',
+      function()
+        local dap = require 'dap'
+        if dap.session() then dap.terminate() end
+
+        vim.g.last_c_path = nil
+        dap.last_run = nil
+      end,
+      desc = 'Debug: Clear Cache',
     },
     {
       '<F1>',
-      function() require('dap').step_into() end,
-      desc = 'Debug: Step Into',
+      function() require('dap').step_over() end,
+      desc = 'Debug: Step Over',
     },
     {
       '<F2>',
-      function() require('dap').step_over() end,
-      desc = 'Debug: Step Over',
+      function() require('dap').step_into() end,
+      desc = 'Debug: Step Into',
     },
     {
       '<F3>',
       function() require('dap').step_out() end,
       desc = 'Debug: Step Out',
+    },
+    {
+      '<F4>',
+      function()
+        require('dap').terminate()
+        require('dapui').close()
+      end,
+      desc = 'Debug: Terminate and CloseUI',
     },
     {
       '<leader>b',
@@ -84,6 +123,24 @@ return {
       },
     }
 
+    dap.configurations.c = {
+      {
+        name = 'Launch file',
+        type = 'codelldb',
+        request = 'launch',
+        program = function()
+          -- Check if we have a cached path in the global variable
+          if vim.g.last_c_path then return vim.g.last_c_path end
+
+          -- If not, ask the user and save it to the global variable
+          local path = vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+          vim.g.last_c_path = path
+          return path
+        end,
+        cwd = '${workspaceFolder}',
+        stopOnEntry = false,
+      },
+    }
     -- Dap UI setup
     -- For more information, see |:help nvim-dap-ui|
     dapui.setup {
