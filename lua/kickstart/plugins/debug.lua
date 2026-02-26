@@ -68,6 +68,16 @@ return {
       desc = 'Debug: Step Over',
     },
     {
+      '<S-F1>',
+      function() require('dap').continue() end,
+      desc = 'Debug: Continue',
+    },
+    {
+      '<F13>', -- some terminals interpert shift+f1 as f13
+      function() require('dap').continue() end,
+      desc = 'Debug: Continue',
+    },
+    {
       '<F2>',
       function() require('dap').step_into() end,
       desc = 'Debug: Step Into',
