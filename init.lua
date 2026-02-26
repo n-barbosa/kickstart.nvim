@@ -723,12 +723,16 @@ require('lazy').setup({
           -- `friendly-snippets` contains a variety of premade snippets.
           --    See the README about individual language/framework/plugin snippets:
           --    https://github.com/rafamadriz/friendly-snippets
-          -- {
-          --   'rafamadriz/friendly-snippets',
-          --   config = function()
-          --     require('luasnip.loaders.from_vscode').lazy_load()
-          --   end,
-          -- },
+          {
+            'rafamadriz/friendly-snippets',
+            config = function()
+              -- Load community snippets
+              require('luasnip.loaders.from_vscode').lazy_load()
+
+              -- Load custom snippets
+              require('luasnip.loaders.from_vscode').lazy_load { paths = { vim.fn.stdpath 'config' .. '/snippets' } }
+            end,
+          },
         },
         opts = {},
       },
@@ -940,3 +944,17 @@ require('lazy').setup({
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+
+-- Load my custom utilities
+local run_utils = require 'custom.run_utils'
+
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { 'c', 'h', 'cpp' },
+  callback = function()
+    -- We use vim.opt_local to ensure it only affects the current buffer
+    vim.opt_local.shiftwidth = 4
+    vim.opt_local.tabstop = 4
+    vim.opt_local.softtabstop = 4
+    vim.opt_local.expandtab = true
+  end,
+})
