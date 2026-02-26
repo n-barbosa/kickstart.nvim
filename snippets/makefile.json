@@ -1,0 +1,24 @@
+{
+  "Standard C Makefile": {
+    "prefix": "make",
+    "body": [
+      "CC = gcc",
+      "CFLAGS = -Wall -Wextra  -fanalyzer -g",
+      "TARGET = main",
+      "SRC = $(wildcard *.c)",
+      "OBJ = $(SRC:.c=.o)",
+      "",
+      "all: $(TARGET)",
+      "",
+      "$(TARGET): $(OBJ)",
+      "\t$(CC) $(OBJ) -o $(TARGET)",
+      "",
+      "%.o: %.c",
+      "\t$(CC) $(CFLAGS) -c $< -o $@",
+      "",
+      "clean:",
+      "\trm -f *.o $(TARGET)"
+    ],
+    "description": "Create a full C Makefile"
+  }
+}
